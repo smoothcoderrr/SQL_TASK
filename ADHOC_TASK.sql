@@ -1,4 +1,4 @@
-# COMMON_TASK
+# ADHOC_TASK
 
 # 1. --order_id alone
 select substring(order_id,4,length(order_id)) as 
