@@ -1,39 +1,95 @@
-#WINDOWS FUNCTION
-CREATE TABLE employees (
-  id INT PRIMARY KEY,
-  first_name VARCHAR(100),
-  last_name VARCHAR(100),
-  email VARCHAR(100),
-  job_title VARCHAR(100),
-  department_id INT,
-salary DECIMAL(10, 2),
-hired_date DATE
+#WINDOWS FUNCTIONuse internship;
+drop table employee;
+CREATE TABLE Employee (
+    id INT,
+    salary DECIMAL(10, 2),
+    age INT,
+    phone_number VARCHAR(15),
+    email_id VARCHAR(255),
+    location VARCHAR(100)
 );
 
-INSERT INTO employees VALUES (1, 'John', 'Doe', 'john.doe@gmail.com', 'Software Engineer', 1, 50000, '2022-01-01');
-INSERT INTO employees VALUES (2, 'Jane', 'Smith', 'jane.smith@gmail.com', 'Data Scientist', 2, 60000, '2022-02-01');
-INSERT INTO employees VALUES (3, 'Bob', 'Johnson', 'bob.johnson@gmail.com', 'Product Manager', 1, 70000, '2022-03-01');
-INSERT INTO employees VALUES (4, 'Alice', 'Williams', 'alice.williams@gmail.com', 'Software Engineer', 2,80000, '2022-04-01');
-INSERT INTO employees VALUES (5, 'Charlie', 'Brown', 'charlie.brown@gmail.com', 'UX Designer', 3,  60000, '2022-05-01');
-INSERT INTO employees VALUES (6, 'Emma', 'Davis', 'emma.davis@gmail.com', 'Data Analyst', 3, 70000, '2022-06-01');
+INSERT INTO Employee (id, salary, age, phone_number, email_id, location)
+VALUES (1, 50000, 30, '123-456-7890', 'john@example.com', 'London');
 
-#1.ROW_NUMBER
-select id, salary, department_id, row_number() over(partition by department_id order by salary) as row_id from employees;
+INSERT INTO Employee (id, salary, age, phone_number, email_id, location)
+VALUES (2, 60000, 35, '987-654-3210', 'sarah@example.com', 'Paris');
 
-#2.RANK
-select id, department_id, hired_date, salary, rank() over(order by Salary) as rank_num from employees;
+INSERT INTO Employee (id, salary, age, phone_number, email_id, location)
+VALUES (3, 75000, 42, '555-123-4567', 'mike@example.com', 'New York');
 
-#3.DENSE RANK
-select id, department_id, hired_date, salary, dense_rank() over(order by salary) as d_rank from employees;
+INSERT INTO Employee (id, salary, age, phone_number, email_id, location)
+VALUES (4, 40000, 28, '111-222-3333', 'anna@example.com', 'Berlin');
 
-#4.LEAD
-select id, department_id, hired_date, salary, lead(salary, 1, 0) over(order by salary) as lead_value from employees;
+INSERT INTO Employee (id, salary, age, phone_number, email_id, location)
+VALUES (5, 55000, 31, '444-555-6666', 'david@example.com', 'Sydney');
 
-#5.LAG
-select id, department_id, hired_date, salary, lag(salary, 1, 0) over(order by salary) as lag_value from employees;
+INSERT INTO Employee (id, salary, age, phone_number, email_id, location)
+VALUES (1, 65000, 36, '777-888-9999', 'laura@example.com', 'Tokyo');
 
-#6.FIRST_VALUE
-select id, department_id, hired_date, salary, first_value(salary) over(partition by department_id order by salary desc) as f_value from employees;
+INSERT INTO Employee (id, salary, age, phone_number, email_id, location)
+VALUES (7, 70000, 39, '222-333-4444', 'peter@example.com', 'Berlin');
 
-#7.LAST_VALUE
-select id, department_id, hired_date, salary, last_value(salary) over(partition by department_id order by salary ) as l_value from employees;
+INSERT INTO Employee (id, salary, age, phone_number, email_id, location)
+VALUES (8, 45000, 27, '888-999-0000', 'emily@example.com', 'London');
+
+INSERT INTO Employee (id, salary, age, phone_number, email_id, location)
+VALUES (9, 52000, 33, '333-444-5555', 'megan@example.com', 'New York');
+
+INSERT INTO Employee (id, salary, age, phone_number, email_id, location)
+VALUES (10, 58000, 37, '666-777-8888', 'alex@example.com', 'Paris');
+
+INSERT INTO Employee (id, salary, age, phone_number, email_id, location)
+VALUES (2, 60000, 35, '555-666-7777', 'samantha@example.com', 'London');
+
+INSERT INTO Employee (id, salary, age, phone_number, email_id, location)
+VALUES (12, 48000, 26, '777-888-9999', 'daniel@example.com', 'Tokyo');
+
+INSERT INTO Employee (id, salary, age, phone_number, email_id, location)
+VALUES (13, 62000, 32, '444-555-6666', 'lisa@example.com', 'New York');
+
+INSERT INTO Employee (id, salary, age, phone_number, email_id, location)
+VALUES (5, 56000, 30, '222-333-4444', 'jennifer@example.com', 'Berlin');
+
+INSERT INTO Employee (id, salary, age, phone_number, email_id, location)
+VALUES (15, 70000, 35, '111-222-3333', 'matthew@example.com', 'London');
+
+INSERT INTO Employee (id, salary, age, phone_number, email_id, location)
+VALUES (12, 53000, 31, '888-999-0000', 'natalie@example.com', 'Paris');
+
+
+#B.
+select id, salary, age, phone_number ,location, row_number() over(partition by location) as num_location from employee;
+
+#C
+with employee_updated as
+(select id, salary, age, phone_number, location, row_number()
+over(partition by id, phone_number) as row_id from employee)
+select * from employee_updated where row_id=1;
+
+#D.
+with remove_duplicates as
+(select id, phone_number, location, row_number() over(partition by phone_number, location order by id) as row_num from employee)
+select * from remove_duplicates where row_num=1;
+
+#E
+select id, phone_number, location, id as row_id,row_number() over(partition by phone_number, location order by id) as row_num from employee;
+
+#f.
+#case 1:
+select * from employee
+order by salary asc;
+
+#case 2:
+select id, salary, phone_number, location, 
+rank() over(partition by location order by salary) as rank_sal from employee; 
+
+#case 3:
+with highest_sal as
+(select id, salary, phone_number, location, 
+rank() over(partition by location order by salary) as rank_sal from employee)
+select * from highest_sal where rank_sal=2; 
+
+#case :4
+select location, min(salary) min_sal
+ from employee group by location having min(salary);
