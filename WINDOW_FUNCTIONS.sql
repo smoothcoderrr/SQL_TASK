@@ -58,38 +58,45 @@ INSERT INTO Employee (id, salary, age, phone_number, email_id, location)
 VALUES (12, 53000, 31, '888-999-0000', 'natalie@example.com', 'Paris');
 
 
-#B.
+#B. consecutive numbers for each record locationswise
+    
 select id, salary, age, phone_number ,location, row_number() over(partition by location) as num_location from employee;
 
-#C
+#C. employee_updated with no duplicates
+    
 with employee_updated as
 (select id, salary, age, phone_number, location, row_number()
 over(partition by id, phone_number) as row_id from employee)
 select * from employee_updated where row_id=1;
 
-#D.
+#D. all the duplicate phone numbers
+    
 with remove_duplicates as
 (select id, phone_number, location, row_number() over(partition by phone_number, location order by id) as row_num from employee)
 select * from remove_duplicates where row_num=1;
 
-#E
+#E. difference between row_number and row_id
 select id, phone_number, location, id as row_id,row_number() over(partition by phone_number, location order by id) as row_num from employee;
 
-#f.
-#case 1:
+#F. 
+#case 1: increasing order of their salary
+    
 select * from employee
 order by salary asc;
 
-#case 2:
+#case 2: increasing order of their salary location wise
+    
 select id, salary, phone_number, location, 
 rank() over(partition by location order by salary) as rank_sal from employee; 
 
-#case 3:
+#case 3: second-highest salary in each location
+    
 with highest_sal as
 (select id, salary, phone_number, location, 
 rank() over(partition by location order by salary) as rank_sal from employee)
 select * from highest_sal where rank_sal=2; 
 
-#case :4
+#case :4 least salary in each location
+    
 select location, min(salary) min_sal
  from employee group by location having min(salary);
